@@ -1,2 +1,4 @@
 # clinica-javier-prado-cvp-backend
-this is the backend for cvp appointment management system. it has a microservices arquitecture + ddd desing.
+UNIVERSITY PROJECT
+Making an appointment management system for "Clinica Javier Prado"
+It has a microservices arquitecture + ddd desing :)
