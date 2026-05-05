@@ -5,8 +5,8 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class UserNames {
+public class LastNames {
 
-    private String firstName;
     private String lastName;
+    private String secondLastName;
 }
