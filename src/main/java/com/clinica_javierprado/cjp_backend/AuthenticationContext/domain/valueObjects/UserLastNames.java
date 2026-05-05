@@ -2,4 +2,6 @@ package com.clinica_javierprado.cjp_backend.AuthenticationContext.domain.valueOb
 
 public class UserLastNames {
 
+    private String lastName;
+    private String secondLastName;
 }
