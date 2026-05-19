@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: cjp-backend
+
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/cjp_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  mail:
+    host: ${MAIL_HOST:smtp.resend.com}
+    port: ${MAIL_PORT:465}
+    username: ${MAIL_USERNAME:resend}
+    password: ${MAIL_PASSWORD:test}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          ssl:
+            enable: true
+
+jwt:
+  secret: ${JWT_SECRET:your_super_secret_key_which_should_be_long_enough_for_hmac_sha256}
+  expiration-ms: ${JWT_EXPIRATION_MS:28800000}
+
+aws:
+  s3:
+    access-key: ${AWS_ACCESS_KEY_ID:default}
+    secret-key: ${AWS_SECRET_ACCESS_KEY:default}
+    region: ${AWS_REGION:us-east-1}
+    bucket-name: ${AWS_S3_BUCKET:cjp-bucket}
