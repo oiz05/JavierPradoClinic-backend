@@ -33,10 +33,16 @@ public class AuthService {
     @Transactional
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("Email is already in use.");
+            throw new IllegalArgumentException("El email ya está en uso.");
         }
         if (userRepository.existsByDni(request.getDni())) {
-            throw new IllegalArgumentException("DNI is already in use.");
+            throw new IllegalArgumentException("El DNI ya está registrado.");
+        }
+        if (userRepository.existsByPhoneNumber(request.getPhoneNumber())) {
+            throw new IllegalArgumentException("El número de teléfono ya está registrado.");
+        }
+        if (userRepository.existsByFirstNameAndLastName(request.getFirstName(), request.getLastName())) {
+            throw new IllegalArgumentException("Ya existe un usuario con los mismos nombres y apellidos.");
         }
 
         User user = User.builder()

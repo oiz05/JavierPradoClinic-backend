@@ -4,8 +4,8 @@ spring:
 
   datasource:
     url: ${DB_URL:jdbc:mysql://localhost:3306/cjp_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:root}
+    username: ${DB_USERNAME:test_user}
+    password: ${DB_PASSWORD:password}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -32,7 +32,7 @@ spring:
             enable: true
 
 jwt:
-  secret: ${JWT_SECRET:your_super_secret_key_which_should_be_long_enough_for_hmac_sha256}
+  secret: ${JWT_SECRET:UDHBBDY99hhuhuduhldoo282uubbjfnwu8912724hh280kLdnbbhuh4}
   expiration-ms: ${JWT_EXPIRATION_MS:28800000}
 
 aws:
