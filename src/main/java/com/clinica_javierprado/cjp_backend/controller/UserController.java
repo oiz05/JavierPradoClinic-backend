@@ -20,7 +20,7 @@ public class UserController {
 
     private final UserService userService;
 
-    @GetMapping("/profile")
+    @GetMapping("/me")
     public ResponseEntity<UserProfileResponse> getProfile(@AuthenticationPrincipal User user) {
         return ResponseEntity.ok(userService.getProfile(user));
     }
@@ -29,8 +29,7 @@ public class UserController {
     public ResponseEntity<UserProfileResponse> updateProfile(
             @AuthenticationPrincipal User user,
             @RequestPart("data") @Valid EditProfileRequest request,
-            @RequestPart(value = "photo", required = false) MultipartFile profilePhoto
-    ) throws IOException {
+            @RequestPart(value = "photo", required = false) MultipartFile profilePhoto) throws IOException {
         return ResponseEntity.ok(userService.updateProfile(user, request, profilePhoto));
     }
 }

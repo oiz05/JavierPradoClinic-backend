@@ -42,3 +42,31 @@ CREATE TABLE `password_reset_tokens` (
   UNIQUE KEY `UKla2ts67g4oh2sreayswhox1i6` (`user_id`),
   CONSTRAINT `FKk3ndxg5xp6v7wd4gjyusp15gq` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- cjp_db.clinics definition
+
+CREATE TABLE `clinics` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `address` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- cjp_db.appointments definition
+
+CREATE TABLE `appointments` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `patient_id` bigint NOT NULL,
+  `doctor_profile_id` bigint NOT NULL,
+  `clinic_id` bigint NOT NULL,
+  `appointment_date` datetime NOT NULL,
+  `status` enum('PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED') NOT NULL DEFAULT 'PENDING',
+  `price` decimal(10,2) NOT NULL,
+  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `FK_appointment_patient` FOREIGN KEY (`patient_id`) REFERENCES `users` (`id`),
+  CONSTRAINT `FK_appointment_doctor` FOREIGN KEY (`doctor_profile_id`) REFERENCES `doctor_profiles` (`id`),
+  CONSTRAINT `FK_appointment_clinic` FOREIGN KEY (`clinic_id`) REFERENCES `clinics` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
