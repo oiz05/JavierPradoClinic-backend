@@ -3,8 +3,8 @@ spring:
     name: cjp-backend
 
   datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:3306/cjp_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
-    username: ${DB_USERNAME:test_user}
+    url: ${DB_URL:jdbc:mysql://cjp-id.c1y2gye8k2y4.sa-east-1.rds.amazonaws.com:3306/cjp_db?useSSL=true&requireSSL=true}
+    username: ${DB_USERNAME:admin}
     password: ${DB_PASSWORD:password}
     driver-class-name: com.mysql.cj.jdbc.Driver
 

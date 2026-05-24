@@ -32,4 +32,9 @@ public class UserController {
             @RequestPart(value = "photo", required = false) MultipartFile profilePhoto) throws IOException {
         return ResponseEntity.ok(userService.updateProfile(user, request, profilePhoto));
     }
+
+    // @GetMapping("/doctors-and-branches.")
+    // public ResponseEntity<List<String>> getMedicalSpecialties() {
+    // return ResponseEntity.ok(userService.getMedicalSpecialties());
+    // }
 }

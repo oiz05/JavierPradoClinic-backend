@@ -1,0 +1,22 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cjp-backend
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    # Environment variables can be mapped here. 
+    # By default it will use the ones in application.yml which connect to AWS RDS
+    # Uncomment and adjust these if you want to override the application.yml defaults
+    # environment:
+    #   - DB_URL=jdbc:mysql://cjp-id.c1y2gye8k2y4.sa-east-1.rds.amazonaws.com:3306/cjp_db?useSSL=true&requireSSL=true
+    #   - DB_USERNAME=admin
+    #   - DB_PASSWORD=password
+    #   - JWT_SECRET=your_jwt_secret
+    #   - JWT_EXPIRATION_MS=28800000
+    #   - AWS_ACCESS_KEY_ID=default
+    #   - AWS_SECRET_ACCESS_KEY=default
+    #   - AWS_REGION=us-east-1
+    #   - AWS_S3_BUCKET=cjp-bucket
