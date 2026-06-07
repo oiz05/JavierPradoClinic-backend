@@ -53,7 +53,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration
-                .setAllowedOrigins(Arrays.asList("https://clinica-javier-prado.vercel.app/", "http://localhost:5173"));
+                .setAllowedOrigins(Arrays.asList("https://clinica-javier-prado.vercel.app", "https://clinica-javier-prado-git-main-oscar-z-projects.vercel.app", "https://clinica-javier-prado-8n7fgfc9r-oscar-z-projects.vercel.app" ,"http://localhost:5173"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
         configuration.setAllowCredentials(true);
