@@ -1,289 +1,214 @@
-# Backend - Sistema de Gestión de Citas Médicas CJP
+# Javier Prado Clinic Backend
 
-## 📋 Descripción
+Backend de la Clinica Javier Prado construido con Java 21 y Spring Boot. En su estado actual se enfoca en autenticacion con JWT, registro de usuarios, recuperacion de contrasena, consulta y edicion de perfil, carga de foto de perfil y health check.
 
-Sistema backend para la gestión de citas médicas de la Clínica Javier Prado (CJP), desarrollado con **Java 21** y **Spring Boot**.
+## Estado actual
 
-La plataforma permite a pacientes agendar citas médicas, gestionar sus consultas, recuperar contraseñas, administrar su perfil y autenticarse mediante JWT y OAuth2.
+- Registro de pacientes con rol `PATIENT` por defecto
+- Inicio de sesion con JWT
+- Recuperacion y reseteo de contrasena por correo
+- Consulta de perfil autenticado
+- Actualizacion de perfil con soporte para foto en S3
+- Health check para monitoreo basico
+- Integracion parcial con el frontend actual
 
----
+El modulo de citas todavia no esta implementado en la capa API, aunque el repositorio incluye definiciones SQL para tablas como `appointments` y `clinics` en `cjp_db.sql`.
 
-## 🚀 Tecnologías Utilizadas
-
-### Backend
+## Stack
 
 - Java 21
-- Spring Boot 3
+- Spring Boot 4.0.6
 - Spring Security
 - Spring Data JPA
-- Hibernate
-- JWT Authentication
-- OAuth2 Login
+- Spring Validation
+- Java Mail
+- JWT (`jjwt`)
+- MySQL
+- AWS S3 SDK
 - Maven
-
-### Base de Datos
-
-- MySQL 8
-- AWS RDS
-
-### Infraestructura
-
 - Docker
-- AWS ECS
-- AWS ECR
 
-### Almacenamiento
-
-- Amazon S3
-
-### Servicios Externos
-
-- Resend (correo electrónico)
-- Amazon SES (implementación futura)
-
----
-
-## 🏗️ Arquitectura del Proyecto
+## Estructura del proyecto
 
 ```text
-cjp_backend/
-├── CjpBackendApplication.java
-├── controller
-│   ├── AuthController.java
-│   ├── HealthController.java
-│   └── UserController.java
-├── domain
-│   ├── DoctorProfile.java
-│   ├── PasswordResetToken.java
-│   ├── Role.java
-│   └── User.java
-├── dto
-│   ├── AuthResponse.java
-│   ├── EditProfileRequest.java
-│   ├── ForgotPasswordRequest.java
-│   ├── LoginRequest.java
-│   ├── MessageResponse.java
-│   ├── RegisterRequest.java
-│   ├── ResetPasswordRequest.java
-│   └── UserProfileResponse.java
-├── exception
-│   └── GlobalExceptionHandler.java
-├── repository
-│   ├── DoctorProfileRepository.java
-│   ├── PasswordResetTokenRepository.java
-│   └── UserRepository.java
-├── security
-│   ├── JwtAuthenticationFilter.java
-│   ├── JwtService.java
-│   ├── oauth2
-│   ├── SecurityConfig.java
-│   └── UserDetailsServiceImpl.java
-└── service
-    ├── AuthService.java
-    ├── EmailService.java
-    ├── FileStorageService.java
-    └── UserService.java
+src/main/java/com/clinica_javierprado/cjp_backend/
+  controller/
+  domain/
+  dto/
+  exception/
+  repository/
+  security/
+  service/
+src/main/resources/
+  application.yml
+src/test/java/com/clinica_javierprado/cjp_backend/
 ```
 
----
+## Modulos principales
 
-## 📂 Descripción de Carpetas
+### `controller`
 
-### controller
+Expone los endpoints REST actualmente disponibles:
 
-Contiene los controladores REST encargados de exponer los endpoints consumidos por el frontend.
+- `AuthController`
+- `UserController`
+- `HealthController`
 
-### domain
+### `service`
 
-Entidades del dominio que representan las tablas y modelos de negocio del sistema.
+Contiene la logica de negocio principal:
 
-### dto
+- `AuthService`
+- `UserService`
+- `EmailService`
+- `FileStorageService`
 
-Objetos de transferencia de datos utilizados para la comunicación entre cliente y servidor.
+### `security`
 
-### repository
+Configura autenticacion stateless con JWT, filtro de autenticacion y CORS.
 
-Interfaces encargadas del acceso a datos mediante Spring Data JPA.
+### `domain`
 
-### security
+Modelos persistidos principales:
 
-Configuración de autenticación y autorización basada en JWT y OAuth2.
+- `User`
+- `DoctorProfile`
+- `PasswordResetToken`
+- `Role`
 
-### service
+## Endpoints implementados
 
-Contiene la lógica de negocio de la aplicación.
-
-### exception
-
-Manejo global de excepciones y respuestas de error.
-
----
-
-## 🔐 Seguridad
-
-El sistema utiliza autenticación basada en JWT.
-
-### Flujo de autenticación
-
-1. El usuario envía sus credenciales.
-2. El backend valida la información.
-3. Se genera un JWT.
-4. El frontend almacena el token.
-5. Las solicitudes protegidas incluyen el encabezado:
-
-```http
-Authorization: Bearer <token>
-```
-
----
-
-## 👥 Roles del Sistema
-
-### PATIENT
-
-- Registro de cuenta
-- Inicio de sesión
-- Gestión de perfil
-- Recuperación de contraseña
-
-### DOCTOR
-
-- Acceso a funcionalidades médicas
-- Gestión de información profesional
-
-### ADMINISTRATOR
-
-- Administración general del sistema
-
----
-
-## 📡 API REST
-
-### Autenticación
-
-#### Registro
+### Autenticacion
 
 ```http
 POST /api/auth/register
-```
-
-#### Inicio de sesión
-
-```http
 POST /api/auth/login
-```
-
-#### Recuperar contraseña
-
-```http
 POST /api/auth/forgot-password
-```
-
-#### Restablecer contraseña
-
-```http
 POST /api/auth/reset-password
 ```
 
----
-
-### Usuario
-
-#### Obtener perfil
+### Usuario autenticado
 
 ```http
 GET /api/users/me
-```
-
-#### Actualizar perfil
-
-```http
 PUT /api/users/profile
 ```
 
-#### Subir foto de perfil
-
-```http
-POST /api/users/profile-photo
-```
-
----
-
-### Salud de la Aplicación
-
-#### Health Check
+### Salud del servicio
 
 ```http
 GET /api/health
 ```
 
----
+## Detalle funcional
 
-## 🗄️ Entidades Principales
+### Registro
 
-### User
+- Endpoint: `POST /api/auth/register`
+- Crea usuarios con rol `PATIENT`
+- Valida email, DNI y telefono duplicados
+- Devuelve un JWT en la respuesta
 
-Representa a los usuarios registrados en el sistema.
+### Login
 
-Campos principales:
+- Endpoint: `POST /api/auth/login`
+- Autentica con email y contrasena
+- Devuelve un JWT
 
-- id
-- dni
-- firstName
-- lastName
-- email
-- password
-- phoneNumber
-- profilePhoto
-- role
+### Recuperacion de contrasena
 
-### DoctorProfile
+- `POST /api/auth/forgot-password` genera un token temporal y envia un correo
+- `POST /api/auth/reset-password` aplica la nueva contrasena si el token sigue vigente
 
-Información profesional asociada a un usuario médico.
+### Perfil de usuario
 
-Campos principales:
+- `GET /api/users/me` devuelve el perfil autenticado
+- `PUT /api/users/profile` actualiza perfil y admite `multipart/form-data`
+- El `PUT` espera:
 
-- cmp
-- medicalSpecialty
-- user
-
-### PasswordResetToken
-
-Gestiona los tokens temporales para recuperación de contraseñas.
-
-Campos principales:
-
-- token
-- expirationDate
-- user
-
----
-
-## ⚙️ Variables de Entorno
-
-```properties
-# Database
-spring.datasource.url=
-spring.datasource.username=
-spring.datasource.password=
-
-# JWT
-jwt.secret=
-jwt.expiration=
-
-# AWS S3
-aws.access-key=
-aws.secret-key=
-aws.region=
-aws.s3.bucket=
-
-# Email
-resend.api-key=
+```text
+data: EditProfileRequest
+photo: MultipartFile opcional
 ```
 
----
+No existe un endpoint separado `POST /api/users/profile-photo`.
 
-## 🐳 Docker
+## Flujo de autenticacion
+
+1. El cliente llama `POST /api/auth/login` o `POST /api/auth/register`.
+2. El backend responde con un JWT.
+3. El cliente envia `Authorization: Bearer <token>` en endpoints protegidos.
+4. `JwtAuthenticationFilter` valida el token antes de resolver la peticion.
+
+## Variables de entorno
+
+Variables usadas realmente por el codigo:
+
+### Base de datos
+
+- `DB_URL`
+- `DB_USERNAME`
+- `DB_PASSWORD`
+
+### JWT
+
+- `JWT_SECRET`
+- `JWT_EXPIRATION_MS`
+
+### Correo
+
+- `MAIL_HOST`
+- `MAIL_PORT`
+- `MAIL_USERNAME`
+- `MAIL_PASSWORD`
+
+### AWS S3
+
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+- `AWS_REGION`
+- `AWS_S3_BUCKET`
+
+Referencia: `.env.example`
+
+## Configuracion actual relevante
+
+- `application.yml` tiene valores por defecto para base de datos, JWT, mail y S3
+- `spring.jpa.hibernate.ddl-auto` esta en `update`
+- `spring.jpa.show-sql` esta en `true`
+- CORS esta configurado de forma explicita en `SecurityConfig` para dominios Vercel concretos y `http://localhost:5173`
+
+Para entornos reales conviene sobreescribir las variables y no depender de los fallbacks definidos en `application.yml`.
+
+## Ejecucion local
+
+### Requisitos
+
+- Java 21
+- Maven o Maven Wrapper
+- MySQL accesible
+
+### Preparacion
+
+1. Copia `.env.example` como base para tus variables.
+2. Configura una instancia MySQL compatible con `DB_URL`.
+3. Ajusta credenciales JWT, correo y S3 segun tu entorno.
+
+### Ejecutar con Maven Wrapper
+
+```bash
+./mvnw spring-boot:run
+```
+
+### Ejecutar con Maven instalado
+
+```bash
+mvn spring-boot:run
+```
+
+La aplicacion queda disponible por defecto en `http://localhost:8080`.
+
+## Docker
 
 ### Construir imagen
 
@@ -291,79 +216,55 @@ resend.api-key=
 docker build -t cjp-backend .
 ```
 
-### Ejecutar contenedor
+### Ejecutar con Docker Compose
 
 ```bash
-docker run -p 8080:8080 cjp-backend
+docker compose up --build
 ```
 
----
+Importante:
 
-## ☁️ Despliegue
+- El `docker-compose.yml` actual solo levanta el backend
+- No aprovisiona una base de datos MySQL local
+- Si no sobreescribes variables, el backend intentara usar los valores por defecto definidos en `application.yml`
 
-El backend está preparado para desplegarse en:
+## Integracion con el frontend actual
 
-- AWS ECS Fargate
-- AWS ECR
-- AWS RDS
-- Amazon S3
+El frontend en `../JavierPradoClinic-frontend` hoy consume o espera principalmente estos endpoints:
 
----
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `GET /api/users/me`
 
-## 🧪 Ejecución Local
+Estado de la integracion:
 
-### Clonar repositorio
+- Login y registro estan conectados
+- El dashboard del frontend se apoya en `GET /api/users/me`
+- El modulo visual de citas del frontend sigue mayormente mock y no tiene soporte backend aun
+- La recuperacion de contrasena existe en backend, pero el frontend actual todavia no expone un flujo completo para usarla
 
-```bash
-git clone https://github.com/tu-organizacion/cjp-backend.git
-```
+## Limitaciones conocidas
 
-### Entrar al proyecto
+- No hay endpoints implementados para citas, medicos o sedes
+- No hay integracion OAuth2 implementada
+- El link de reseteo de contrasena en `EmailService` apunta a `http://localhost:3000/reset-password`, que no coincide con el frontend actual en Vite
+- CORS esta hardcodeado y no sale de variables de entorno
+- La cobertura de tests es minima
+- Existen valores sensibles por defecto en `application.yml` que deberian reemplazarse en entornos reales
 
-```bash
-cd cjp-backend
-```
+## Archivos utiles
 
-### Ejecutar aplicación
+- `src/main/resources/application.yml`
+- `.env.example`
+- `docker-compose.yml`
+- `Dockerfile`
+- `cjp_db.sql`
 
-```bash
-./mvnw spring-boot:run
-```
+## Siguientes pasos recomendados
 
-o
-
-```bash
-mvn spring-boot:run
-```
-
----
-
-## 📈 Funcionalidades Implementadas
-
-- ✅ Registro de usuarios
-- ✅ Inicio de sesión con JWT
-- ✅ Inicio de sesión con OAuth2
-- ✅ Recuperación de contraseña
-- ✅ Gestión de perfil
-- ✅ Carga de imágenes a Amazon S3
-- ✅ Health Check para despliegue en ECS
-- ✅ Manejo global de excepciones
-- ✅ Autorización basada en roles
-
----
-
-## 🚧 Funcionalidades Futuras
-
-- Gestión completa de citas médicas
-- Gestión de clínicas y sedes
-- Historial médico
-- Notificaciones por correo
-- Notificaciones SMS
-- Panel administrativo avanzado
-- Integración con Amazon SES
-
----
-
-## 👨‍💻 Equipo de Desarrollo
-
-Proyecto desarrollado para la Clínica Javier Prado como parte del curso de Proyecto Integrador II de la carrera de Ingeniería de Sistemas e Informática.
+- Implementar endpoints reales de citas
+- Exponer catalogos de medicos, especialidades y sedes
+- Parametrizar la URL base del frontend para emails de reset password
+- Mover CORS a configuracion por entorno
+- Agregar pruebas de autenticacion, perfil y errores
+- Alinear el flujo de recuperacion de contrasena con el frontend
