@@ -4,11 +4,14 @@ import com.clinica_javierprado.cjp_backend.dto.AuthResponse;
 import com.clinica_javierprado.cjp_backend.dto.ForgotPasswordRequest;
 import com.clinica_javierprado.cjp_backend.dto.LoginRequest;
 import com.clinica_javierprado.cjp_backend.dto.MessageResponse;
+import com.clinica_javierprado.cjp_backend.dto.ResendVerificationRequest;
 import com.clinica_javierprado.cjp_backend.dto.RegisterRequest;
 import com.clinica_javierprado.cjp_backend.dto.ResetPasswordRequest;
+import com.clinica_javierprado.cjp_backend.dto.VerifyEmailRequest;
 import com.clinica_javierprado.cjp_backend.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,9 +22,21 @@ public class AuthController {
 
     private final AuthService authService;
 
+
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
+    public ResponseEntity<MessageResponse> register(@Valid @RequestBody RegisterRequest request) {
         return ResponseEntity.ok(authService.register(request));
+    }
+
+    @PostMapping("/verify-email")
+    public ResponseEntity<AuthResponse> verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
+        return ResponseEntity.ok(authService.verifyEmail(request.getEmail(), request.getCode()));
+    }
+
+    @PostMapping("/resend-verification")
+    public ResponseEntity<MessageResponse> resendVerification(@Valid @RequestBody ResendVerificationRequest request) {
+        authService.resendVerificationCode(request.getEmail());
+        return ResponseEntity.ok(new MessageResponse("Si el correo esta pendiente de verificacion, recibiras un nuevo codigo."));
     }
 
     @PostMapping("/login")

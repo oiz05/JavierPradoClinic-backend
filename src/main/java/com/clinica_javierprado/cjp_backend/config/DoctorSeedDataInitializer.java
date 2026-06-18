@@ -55,6 +55,7 @@ public class DoctorSeedDataInitializer implements ApplicationRunner {
                     .dni(doctorSeed.getDni())
                     .email(doctorSeed.getEmail())
                     .phoneNumber(doctorSeed.getPhoneNumber())
+                    .emailVerified(true)
                     .password(passwordEncoder.encode(doctorSeed.getPassword()))
                     .role(Role.DOCTOR)
                     .build();

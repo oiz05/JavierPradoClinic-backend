@@ -79,6 +79,7 @@ public class UserService {
                 .lastName(user.getLastName())
                 .dni(user.getDni())
                 .email(user.getEmail())
+                .emailVerified(Boolean.TRUE.equals(user.getEmailVerified()))
                 .phoneNumber(user.getPhoneNumber())
                 .profilePhoto(user.getProfilePhoto())
                 .role(user.getRole().name())
