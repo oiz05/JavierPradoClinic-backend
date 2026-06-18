@@ -10,6 +10,7 @@ import com.clinica_javierprado.cjp_backend.repository.PasswordResetTokenReposito
 import com.clinica_javierprado.cjp_backend.repository.UserRepository;
 import com.clinica_javierprado.cjp_backend.security.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,6 +30,9 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final PasswordResetTokenRepository tokenRepository;
     private final EmailService emailService;
+
+    @Value("${app.password-reset.token-expiration-hours}")
+    private long passwordResetTokenExpirationHours;
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
@@ -87,7 +91,7 @@ public class AuthService {
         PasswordResetToken resetToken = PasswordResetToken.builder()
                 .user(user)
                 .token(token)
-                .expiryDate(LocalDateTime.now().plusHours(1))
+                .expiryDate(LocalDateTime.now().plusHours(passwordResetTokenExpirationHours))
                 .build();
 
         tokenRepository.save(resetToken);

@@ -12,7 +12,7 @@ Backend de la Clinica Javier Prado construido con Java 21 y Spring Boot. En su e
 - Health check para monitoreo basico
 - Integracion parcial con el frontend actual
 
-El modulo de citas todavia no esta implementado en la capa API, aunque el repositorio incluye definiciones SQL para tablas como `appointments` y `clinics` en `cjp_db.sql`.
+El modulo de citas todavia no esta implementado en la capa API, pero ya existen entidades y repositorios JPA para `appointments` y `clinics`.
 
 ## Stack
 
@@ -23,7 +23,7 @@ El modulo de citas todavia no esta implementado en la capa API, aunque el reposi
 - Spring Validation
 - Java Mail
 - JWT (`jjwt`)
-- MySQL
+- PostgreSQL
 - AWS S3 SDK
 - Maven
 - Docker
@@ -149,6 +149,11 @@ Variables usadas realmente por el codigo:
 - `DB_URL`
 - `DB_USERNAME`
 - `DB_PASSWORD`
+- `DB_MAX_POOL_SIZE`
+- `DB_MIN_IDLE`
+- `JPA_DDL_AUTO`
+- `JPA_SHOW_SQL`
+- `HIBERNATE_FORMAT_SQL`
 
 ### JWT
 
@@ -161,6 +166,8 @@ Variables usadas realmente por el codigo:
 - `MAIL_PORT`
 - `MAIL_USERNAME`
 - `MAIL_PASSWORD`
+- `MAIL_FROM`
+- `MAIL_RESET_SUBJECT`
 
 ### AWS S3
 
@@ -169,16 +176,42 @@ Variables usadas realmente por el codigo:
 - `AWS_REGION`
 - `AWS_S3_BUCKET`
 
+### CORS
+
+- `CORS_ALLOWED_ORIGINS`
+- `CORS_ALLOWED_METHODS`
+- `CORS_ALLOWED_HEADERS`
+- `CORS_ALLOW_CREDENTIALS`
+
+### Recuperacion de contrasena
+
+- `FRONTEND_BASE_URL`
+- `PASSWORD_RESET_PATH`
+- `PASSWORD_RESET_TOKEN_EXPIRATION_HOURS`
+
+### Docker Compose
+
+- `BACKEND_PORT`
+- `SPRING_PROFILES_ACTIVE`
+
 Referencia: `.env.example`
 
 ## Configuracion actual relevante
 
-- `application.yml` tiene valores por defecto para base de datos, JWT, mail y S3
-- `spring.jpa.hibernate.ddl-auto` esta en `update`
-- `spring.jpa.show-sql` esta en `true`
-- CORS esta configurado de forma explicita en `SecurityConfig` para dominios Vercel concretos y `http://localhost:5173`
+- `application.yml` exige variables sensibles para base de datos, JWT, mail y S3
+- `application-docker.yml` activa la siembra de doctores base para el perfil `docker`
+- `spring.jpa.hibernate.ddl-auto` se controla con `JPA_DDL_AUTO` y por defecto esta en `update`
+- `spring.jpa.show-sql` se controla con `JPA_SHOW_SQL` y por defecto esta en `false`
+- `hibernate.format_sql` se controla con `HIBERNATE_FORMAT_SQL` y por defecto esta en `true`
+- El pool JDBC se controla con `DB_MAX_POOL_SIZE` y `DB_MIN_IDLE`, pensado para Supabase
+- CORS se controla con `CORS_ALLOWED_ORIGINS`, `CORS_ALLOWED_METHODS`, `CORS_ALLOWED_HEADERS` y `CORS_ALLOW_CREDENTIALS`
+- El link de recuperacion de contrasena se construye con `FRONTEND_BASE_URL` y `PASSWORD_RESET_PATH`
 
-Para entornos reales conviene sobreescribir las variables y no depender de los fallbacks definidos en `application.yml`.
+Spring importa automaticamente `.env` si existe. `.env.example` queda solo como plantilla.
+
+Para entornos reales conviene definir variables de entorno propias y no depender de los fallbacks definidos en `application.yml`.
+
+La ruta soportada para ejecutar en Docker es `docker compose`, no `docker run` del backend por separado.
 
 ## Ejecucion local
 
@@ -186,12 +219,12 @@ Para entornos reales conviene sobreescribir las variables y no depender de los f
 
 - Java 21
 - Maven o Maven Wrapper
-- MySQL accesible
+- PostgreSQL accesible
 
 ### Preparacion
 
-1. Copia `.env.example` como base para tus variables.
-2. Configura una instancia MySQL compatible con `DB_URL`.
+1. Crea `.env` usando `.env.example` como plantilla.
+2. Configura una instancia PostgreSQL compatible con `DB_URL`; Supabase es la opcion principal esperada.
 3. Ajusta credenciales JWT, correo y S3 segun tu entorno.
 
 ### Ejecutar con Maven Wrapper
@@ -222,11 +255,39 @@ docker build -t cjp-backend .
 docker compose up --build
 ```
 
-Importante:
+Comportamiento actual de Docker Compose con Supabase:
 
-- El `docker-compose.yml` actual solo levanta el backend
-- No aprovisiona una base de datos MySQL local
-- Si no sobreescribes variables, el backend intentara usar los valores por defecto definidos en `application.yml`
+- Levanta `backend` apuntando a la base configurada en `DB_URL`
+- Carga las variables desde `.env` mediante `env_file`
+- Activa el perfil configurado en `SPRING_PROFILES_ACTIVE`, por defecto `docker`
+- Al arrancar, Spring vuelve a sembrar doctores base definidos en `application-docker.yml`
+- Si un doctor semilla ya existe por `cmp`, o hay conflicto de `email` o `dni`, el backend lo omite y sigue arrancando
+- El servicio PostgreSQL local `db` es opcional y solo se activa con el perfil Docker Compose `local-db`
+
+Para usar PostgreSQL local en vez de Supabase, configura:
+
+```env
+DB_URL=jdbc:postgresql://db:5432/cjp_db
+DB_USERNAME=admin
+DB_PASSWORD=password
+```
+
+Y ejecuta:
+
+```bash
+docker compose --profile local-db up --build
+```
+
+La base local de Docker Compose no monta volumen, asi que se considera efimera. Si recreas el contenedor de PostgreSQL, desaparecen los usuarios registrados en runtime.
+
+Credenciales semilla disponibles en el perfil `docker`:
+
+- `ricardo.salazar@cjp.local` / `doctor123`
+- `lucia.torres@cjp.local` / `doctor123`
+
+Si quieres cambiar credenciales o doctores precargados, edita `src/main/resources/application-docker.yml`.
+
+Si ejecutas solo la imagen del backend, debes pasar manualmente las variables `DB_URL`, `DB_USERNAME` y `DB_PASSWORD` apuntando a una base PostgreSQL accesible.
 
 ## Integracion con el frontend actual
 
@@ -247,24 +308,21 @@ Estado de la integracion:
 
 - No hay endpoints implementados para citas, medicos o sedes
 - No hay integracion OAuth2 implementada
-- El link de reseteo de contrasena en `EmailService` apunta a `http://localhost:3000/reset-password`, que no coincide con el frontend actual en Vite
-- CORS esta hardcodeado y no sale de variables de entorno
 - La cobertura de tests es minima
-- Existen valores sensibles por defecto en `application.yml` que deberian reemplazarse en entornos reales
+- La configuracion sensible debe estar definida en `.env` o variables del entorno antes de arrancar la app
 
 ## Archivos utiles
 
 - `src/main/resources/application.yml`
+- `src/main/resources/application-docker.yml`
 - `.env.example`
 - `docker-compose.yml`
 - `Dockerfile`
-- `cjp_db.sql`
+- `cjp_db.sql` contiene SQL legado de MySQL y no se usa en el flujo Docker actual; las entidades JPA son la fuente para crear tablas con Hibernate
 
 ## Siguientes pasos recomendados
 
 - Implementar endpoints reales de citas
 - Exponer catalogos de medicos, especialidades y sedes
-- Parametrizar la URL base del frontend para emails de reset password
-- Mover CORS a configuracion por entorno
 - Agregar pruebas de autenticacion, perfil y errores
 - Alinear el flujo de recuperacion de contrasena con el frontend

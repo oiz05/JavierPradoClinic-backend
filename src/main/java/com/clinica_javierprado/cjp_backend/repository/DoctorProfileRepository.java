@@ -8,5 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface DoctorProfileRepository extends JpaRepository<DoctorProfile, Long> {
+    Optional<DoctorProfile> findByCmp(String cmp);
     Optional<DoctorProfile> findByUserId(Long userId);
 }

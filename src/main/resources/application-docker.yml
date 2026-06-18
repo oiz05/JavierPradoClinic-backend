@@ -1,0 +1,21 @@
+app:
+  seed:
+    doctors:
+      enabled: true
+      items:
+        - first-name: Ricardo
+          last-name: Salazar
+          dni: 70000001
+          email: ricardo.salazar@cjp.local
+          phone-number: "999111111"
+          password: doctor123
+          cmp: CMP10001
+          medical-specialty: Cardiologia
+        - first-name: Lucia
+          last-name: Torres
+          dni: 70000002
+          email: lucia.torres@cjp.local
+          phone-number: "999222222"
+          password: doctor123
+          cmp: CMP10002
+          medical-specialty: Dermatologia
